@@ -6,14 +6,22 @@
         <artifactId>DigitalBanikingPlatform</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>DiscoveryService</artifactId>
-    <name>Archetype - DiscoveryService</name>
-    <description>Service Discovery for Banking Platform</description>
+    <artifactId>Config_Service</artifactId>
+    <name>Archetype - Config_Service</name>
+    <description>Centralized Configuration for Banking Platform</description>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -25,6 +33,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
