@@ -8,20 +8,23 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>DigitalBanikingPlatform</name>
+  <name>DigitalBankingPlatform</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
   <modules>
     <module>Auth</module>
     <module>DiscoveryService</module>
+    <module>API_Gateway</module>
+    <module>Config_Service</module>
   </modules>
 
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>
-    <spring.boot.maven.plugin.version>3.4.3</spring.boot.maven.plugin.version>
-    <spring.boot.dependencies.version>3.4.3</spring.boot.dependencies.version>
+    <spring.boot.maven.plugin.version>3.2.4</spring.boot.maven.plugin.version>
+    <spring.boot.dependencies.version>3.2.4</spring.boot.dependencies.version>
+    <spring-cloud-dependencies>2023.0.0</spring-cloud-dependencies>
   </properties>
 
   <dependencyManagement>
@@ -32,6 +35,13 @@
         <version>${spring.boot.dependencies.version}</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud-dependencies}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
