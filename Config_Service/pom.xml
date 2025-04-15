@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.mycompany.app</groupId>
-        <artifactId>DigitalBanikingPlatform</artifactId>
+        <artifactId>DigitalBankingPlatform</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>Config_Service</artifactId>
