@@ -1,0 +1,40 @@
+server:
+  port: 8081
+
+spring:
+  config:
+    import: "optional:classpath:keys.properties"
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username: ${postgres}
+    password: ${password} # Use environment variables in production!
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+security:
+  jwt:
+    token:
+      secret-key: very_long_and_secure_secret_key_that_should_be_at_least_64_bytes  # Use environment variables!
+      expire-length: 3600000  # 1 hour in milliseconds
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

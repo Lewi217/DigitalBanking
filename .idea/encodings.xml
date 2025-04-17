@@ -9,8 +9,18 @@
     <file url="file://$PROJECT_DIR$/Authentication/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Authy/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Authy/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Config_Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Config_Service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DiscoveryService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DiscoveryService/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure/API_Gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure/API_Gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure/Auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure/Auth/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure/Config_Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure/Config_Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure/DiscoveryService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure/DiscoveryService/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
