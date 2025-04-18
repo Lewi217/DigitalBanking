@@ -22,7 +22,7 @@ public class JwtUtil {
     private static final long EXPIRATION_TIME_ACCESS = 864000000L;  // 10 days for access token
     private static final long EXPIRATION_TIME_REFRESH = 1814400000L;  // 21 days for refresh token
 
-    public JwtUtil(@Value("${secret_key}") String secretKey) { //Removed the exposed secrets
+    public JwtUtil(@Value("${secret.key}") String secretKey) { //Removed the exposed secrets
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
