@@ -7,9 +7,9 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/auth_db
-    username: ${postgres}
-    password: ${password} # Use environment variables in production!
+    url: ${db.url}
+    username: ${db.username}
+    password: ${db.password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -30,8 +30,10 @@ eureka:
 security:
   jwt:
     token:
-      secret-key: very_long_and_secure_secret_key_that_should_be_at_least_64_bytes  # Use environment variables!
-      expire-length: 3600000  # 1 hour in milliseconds
+      secret-key: ${secret.key}
+
+api:
+  prefix: /api/v1
 
 management:
   endpoints:
