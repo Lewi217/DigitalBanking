@@ -13,6 +13,8 @@
     <file url="file://$PROJECT_DIR$/Config_Service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DiscoveryService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DiscoveryService/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/infrastructure/API_Gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/infrastructure/API_Gateway/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/infrastructure/Auth/src/main/java" charset="UTF-8" />

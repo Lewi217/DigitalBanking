@@ -6,12 +6,14 @@
       <directory url="file://$PROJECT_DIR$/infrastructure/API_Gateway/src/main/resources/archetype-resources" includeSubdirectories="true" />
     </excludeFromCompile>
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Config_Service" />
         <module name="DiscoveryService" />
+        <module name="common" />
         <module name="API_Gateway" />
         <module name="Auth" />
       </profile>

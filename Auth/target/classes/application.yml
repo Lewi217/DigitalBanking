@@ -9,9 +9,9 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: ${db.url}
-    username: ${db.username}
-    password: ${db.password}
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username: lewis
+    password: gakpo901
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -32,7 +32,7 @@ eureka:
 security:
   jwt:
     token:
-      secret-key: ${secret.key}
+      secret-key: bmWJ5JO4lrwV/FkyErvimp1UmKIQgbEIat+eFWARwTo=
 
 api:
   prefix: /api/v1
