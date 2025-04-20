@@ -15,6 +15,7 @@
         <module name="DiscoveryService" />
         <module name="common" />
         <module name="API_Gateway" />
+        <module name="AccountService" />
         <module name="Auth" />
       </profile>
     </annotationProcessing>

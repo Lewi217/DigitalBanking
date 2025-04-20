@@ -17,6 +17,7 @@
     <module>API_Gateway</module>
     <module>Config_Service</module>
     <module>common</module>
+    <module>AccountService</module>
   </modules>
 
   <properties>
