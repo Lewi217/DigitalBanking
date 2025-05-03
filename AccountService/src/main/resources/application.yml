@@ -1,13 +1,11 @@
 server:
-  port: 8081
+  port: 8082
 
 spring:
-  config:
-    import:
-      - "optional:configserver:"
-      - "optional:classpath:keys.properties"
   application:
-    name: auth-service
+    name: account-service
+  config:
+    import: "optional:classpath:keys.properties"
   datasource:
     url: ${db.url}
     username: ${db.username}
@@ -28,11 +26,6 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     prefer-ip-address: true
-
-security:
-  jwt:
-    token:
-      secret-key: ${secret.key}
 
 api:
   prefix: /api/v1

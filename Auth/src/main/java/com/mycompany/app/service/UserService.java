@@ -5,7 +5,7 @@ import com.mycompany.app.dto.*;
 import com.mycompany.app.exceptions.CustomExceptionResponse;
 import com.mycompany.app.model.User;
 import com.mycompany.app.repository.UserRepository;
-import com.mycompany.app.security.JwtUtil;
+import com.mycompany.app.SecurityConfigs.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;

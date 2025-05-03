@@ -4,7 +4,7 @@ import com.mycompany.app.dto.*;
 import com.mycompany.app.exceptions.CustomExceptionResponse;
 import com.mycompany.app.model.User;
 import com.mycompany.app.response.ApiResponse;
-import com.mycompany.app.security.JwtUtil;
+import com.mycompany.app.SecurityConfigs.JwtUtil;
 import com.mycompany.app.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
