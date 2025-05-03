@@ -1,4 +1,4 @@
-package com.mycompany.app.security;
+package com.mycompany.app.SecurityConfigs;
 
 import com.mycompany.app.model.User;
 import io.jsonwebtoken.Claims;
