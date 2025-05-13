@@ -19,6 +19,15 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+  cloud:
+    config:
+      enabled: false
+    import-check:
+      enabled: false
+  security:
+    jwt:
+      token:
+        secret-key: ${secret.key}
 
 eureka:
   client:
