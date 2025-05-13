@@ -2,12 +2,10 @@ server:
   port: 8081
 
 spring:
-  config:
-    import:
-      - "optional:configserver:"
-      - "optional:classpath:keys.properties"
   application:
     name: auth-service
+  config:
+    import: "optional:classpath:keys.properties"
   datasource:
     url: ${db.url}
     username: ${db.username}
@@ -21,6 +19,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+  cloud:
+    config:
+      enabled: false
+    import-check:
+      enabled: false
 
 eureka:
   client:
