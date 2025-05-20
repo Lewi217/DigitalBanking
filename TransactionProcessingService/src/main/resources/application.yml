@@ -1,0 +1,60 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: transaction-service
+  config:
+    import: "optional:classpath:keys.properties"
+  datasource:
+    url: ${db.url}
+    username: ${db.username}
+    password: ${db.password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  cloud:
+    config:
+      enabled: false
+    import-check:
+      enabled: false
+  security:
+    jwt:
+      token:
+        secret-key: ${secret.key}
+
+  # Kafka (producer) settings
+  kafka:
+    bootstrap-servers: ${kafka.bootstrap-servers:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    # (if you ever consume, you can uncomment/adjust these)
+    # consumer:
+    #   group-id: transaction-service
+    #   key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    #   value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    #   properties:
+    #     spring.json.trusted.packages: com.mycompany.app.events
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+api:
+  prefix: /api/v1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
