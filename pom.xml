@@ -18,6 +18,8 @@
     <module>Config_Service</module>
     <module>common</module>
     <module>AccountService</module>
+      <module>TransactionProcessingService</module>
+      <module>NotificationService</module>
   </modules>
 
   <properties>

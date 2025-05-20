@@ -5,6 +5,7 @@
       <directory url="file://$PROJECT_DIR$/infrastructure/Auth/src/main/resources/archetype-resources" includeSubdirectories="true" />
       <directory url="file://$PROJECT_DIR$/infrastructure/API_Gateway/src/main/resources/archetype-resources" includeSubdirectories="true" />
       <directory url="file://$PROJECT_DIR$/AccountService/src/main/resources/archetype-resources" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/NotificationService/src/main/resources/archetype-resources" includeSubdirectories="true" />
     </excludeFromCompile>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
@@ -12,17 +13,24 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Config_Service" />
-        <module name="DiscoveryService" />
         <module name="common" />
         <module name="API_Gateway" />
-        <module name="AccountService" />
         <module name="Auth" />
+        <module name="NotificationService" />
+        <module name="Config_Service" />
+        <module name="DiscoveryService" />
+        <module name="TransactionProcessingService" />
+        <module name="AccountService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Authentication" target="17" />
       <module name="Authy" target="17" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="TransactionProcessingService" options="--add-exports java.base/sun.security.timestamp=ALL-UNNAMED" />
+    </option>
   </component>
 </project>
