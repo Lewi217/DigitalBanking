@@ -16,38 +16,43 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("${api.prefix}/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
     private final IUserService userService;
+
     @GetMapping("/get_by_id/{userId}")
-    public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId){
+    public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId) {
         try {
             User user = userService.getUserById(userId);
-            UserDto userDto= userService.convertUserToDto(user);
-            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE,userDto));
+            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
         } catch (CustomExceptionResponse e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE,e.getMessage()));
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
     }
 
     @PutMapping("/update/{userId}")
-    public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest request, @PathVariable Long userId){
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable Long userId, @RequestBody UserUpdateRequest request) {
         try {
             User user = userService.updateUser(request, userId);
-            UserDto userDto= userService.convertUserToDto(user);
-            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE,userDto));
+            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
         } catch (CustomExceptionResponse e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE,e.getMessage()));
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
     }
 
     @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId){
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId) {
         try {
             userService.deleteUser(userId);
-            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE,null));
+            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, null));
         } catch (CustomExceptionResponse e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE,e.getMessage()));
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
+    }
+    @GetMapping("/by-email/{email}")
+    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
+        User user = userService.loadUserByUsername(email);
+        UserDto dto = userService.convertUserToDto(user);
+        return ResponseEntity.ok(dto);
     }
 }

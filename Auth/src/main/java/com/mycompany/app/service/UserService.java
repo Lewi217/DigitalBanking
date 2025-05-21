@@ -8,36 +8,40 @@ import com.mycompany.app.repository.UserRepository;
 import com.mycompany.app.SecurityConfigs.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService{
+public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper mapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
+
+
     @Override
-    public User loadUserByUsername(String username) {
-        return userRepository.findByEmail(username)
-                .orElseThrow(() -> new CustomExceptionResponse("User not found with email: " + username));
+    public User loadUserByUsername(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomExceptionResponse("User not found with email: " + email));
     }
 
     @Override
     public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new CustomExceptionResponse("user not found"));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomExceptionResponse("User not found with ID: " + userId));
     }
 
     @Override
@@ -47,16 +51,18 @@ public class UserService implements IUserService{
 
     @Override
     public User createUser(RegisterRequest request) {
-        return Optional.of(request).filter(user -> !userRepository.existsByEmail(request.getEmail())).map(req -> {
-            User user = new User();
-            user.setFirstName(request.getFirstName());
-            user.setLastName(request.getLastName());
-            user.setUsername(request.getUsername());
-            user.setEmail(request.getEmail());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));  // Password encoding
-            return userRepository.save(user);
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new CustomExceptionResponse("Email already in use: " + request.getEmail());
+        }
 
-        }).orElseThrow(() -> new CustomExceptionResponse("Oops!" + request.getEmail() + " already exists") );
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        return userRepository.save(user);
     }
 
     @Override
@@ -68,14 +74,10 @@ public class UserService implements IUserService{
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // Generate JWT token
             String token = jwtUtil.generateToken(userDetails);
+            String refreshToken = jwtUtil.generateRefreshToken(new HashMap<>(), userDetails);
 
-            HashMap<String, Object> claims = new HashMap<>();
-            String refreshToken = jwtUtil.generateRefreshToken(claims, userDetails);
-            User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
-                    ()-> new CustomExceptionResponse("User Not found")
-            );
+            User user = loadUserByUsername(request.getEmail());
             UserDto userDto = convertUserToDto(user);
 
             return LoginResponse.builder()
@@ -83,29 +85,32 @@ public class UserService implements IUserService{
                     .refreshToken(refreshToken)
                     .user(userDto)
                     .build();
-        } catch (AuthenticationException | CustomExceptionResponse e) {
-            throw new CustomExceptionResponse(e.getMessage());
+        } catch (Exception e) {
+            throw new CustomExceptionResponse("Invalid credentials: " + e.getMessage());
         }
     }
 
     @Override
     public User updateUser(UserUpdateRequest request, Long userId) {
-        return userRepository.findById(userId).map(existingUser ->{
+        return userRepository.findById(userId).map(existingUser -> {
             AppUtils.updateField(existingUser::setFirstName, request.getFirstname(), existingUser.getFirstName());
-            AppUtils.updateField(existingUser::setLastName,request.getLastname(), existingUser.getLastName());
+            AppUtils.updateField(existingUser::setLastName, request.getLastname(), existingUser.getLastName());
             return userRepository.save(existingUser);
-        }).orElseThrow(()->new CustomExceptionResponse("User not found!"));
+        }).orElseThrow(() -> new CustomExceptionResponse("User not found!"));
     }
 
     @Override
     public void deleteUser(Long userId) {
-        userRepository.findById(userId).ifPresentOrElse(userRepository::delete, () -> {
-            throw new CustomExceptionResponse("User not found");
-        });
+        User user = getUserById(userId);
+        userRepository.delete(user);
     }
 
     @Override
-    public UserDto convertUserToDto(User user){
-        return mapper.map(user, UserDto.class);
+    public UserDto convertUserToDto(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getFirstName() + " " + user.getLastName())
+                .build();
     }
 }

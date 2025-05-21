@@ -7,24 +7,18 @@ import com.mycompany.app.response.ApiResponse;
 import com.mycompany.app.SecurityConfigs.JwtUtil;
 import com.mycompany.app.service.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
 import static com.mycompany.app.exceptions.ApiResponseUtils.REQUEST_ERROR_MESSAGE;
 import static com.mycompany.app.exceptions.ApiResponseUtils.REQUEST_SUCCESS_MESSAGE;
 import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("${api.prefix}/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
     private final IUserService userService;
     private final JwtUtil jwtUtil;
@@ -33,10 +27,9 @@ public class AuthController {
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
         try {
             User user = userService.createUser(request);
-            UserDto userDto= userService.convertUserToDto(user);
-            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE,userDto));
+            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
         } catch (CustomExceptionResponse e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE,e.getMessage()));
+            return ResponseEntity.status(CONFLICT).body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
     }
 
@@ -44,45 +37,41 @@ public class AuthController {
     public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
         try {
             LoginResponse response = userService.logInUser(request);
-            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE,response));
+            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, response));
         } catch (CustomExceptionResponse e) {
-            return ResponseEntity.status(FORBIDDEN).body(new ApiResponse(REQUEST_ERROR_MESSAGE,e.getMessage()));
+            return ResponseEntity.status(UNAUTHORIZED).body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
     }
 
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
         try {
-            if (request.getRefreshToken() == null || jwtUtil.isTokenExpired(request.getRefreshToken())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            String refreshToken = request.getRefreshToken();
+            if (refreshToken == null || jwtUtil.isTokenExpired(refreshToken)) {
+                return ResponseEntity.status(FORBIDDEN)
                         .body(new ApiResponse(REQUEST_ERROR_MESSAGE, "Invalid or expired refresh token"));
             }
 
-            String username = jwtUtil.extractUsername(request.getRefreshToken());
+            String username = jwtUtil.extractUsername(refreshToken);
             User user = userService.loadUserByUsername(username);
-
-            UserDetails userDetails = jwtUtil.toUserDetails(user);
-
-            if (!jwtUtil.isTokenValid(request.getRefreshToken(), userDetails)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            if (!jwtUtil.isTokenValid(refreshToken, jwtUtil.toUserDetails(user))) {
+                return ResponseEntity.status(FORBIDDEN)
                         .body(new ApiResponse(REQUEST_ERROR_MESSAGE, "Invalid refresh token"));
             }
 
-            String newAccessToken = jwtUtil.generateToken(userDetails);
-            String newRefreshToken = jwtUtil.generateRefreshToken(new HashMap<>(), userDetails);
+            String newAccessToken = jwtUtil.generateToken(jwtUtil.toUserDetails(user));
+            String newRefreshToken = jwtUtil.generateRefreshToken(new HashMap<>(), jwtUtil.toUserDetails(user));
 
             LoginResponse loginResponse = LoginResponse.builder()
                     .token(newAccessToken)
                     .refreshToken(newRefreshToken)
-                    .user(userService.convertUserToDto(user))  // Convert user to DTO
+                    .user(userService.convertUserToDto(user))
                     .build();
 
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, loginResponse));
-
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            return ResponseEntity.status(FORBIDDEN)
                     .body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
     }
-
 }
