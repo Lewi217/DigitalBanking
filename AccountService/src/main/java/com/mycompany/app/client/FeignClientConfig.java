@@ -1,5 +1,6 @@
 package com.mycompany.app.client;
 
+import feign.Logger;
 import feign.RequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class FeignClientConfig {
 
     @Bean
-    public RequestInterceptor requestTokenBearerInterceptor() {
+    public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes != null) {
@@ -20,5 +21,10 @@ public class FeignClientConfig {
                 }
             }
         };
+    }
+
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
     }
 }

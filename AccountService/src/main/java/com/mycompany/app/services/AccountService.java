@@ -1,6 +1,6 @@
 package com.mycompany.app.services;
 
-import com.mycompany.app.config.AuthServiceClient;
+import com.mycompany.app.client.AuthServiceClient;
 import com.mycompany.app.dto.AccountCreationRequest;
 import com.mycompany.app.dto.AccountDto;
 import com.mycompany.app.dto.UserDto;
