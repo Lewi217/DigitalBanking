@@ -37,9 +37,6 @@ security:
     token:
       secret-key: ${secret.key}
 
-api:
-  prefix: /api/v1
-
 management:
   endpoints:
     web:

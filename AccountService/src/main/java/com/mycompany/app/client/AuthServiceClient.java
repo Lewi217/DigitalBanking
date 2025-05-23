@@ -10,9 +10,13 @@ import org.springframework.web.bind.annotation.PathVariable;
         configuration = FeignClientConfig.class
 )
 public interface AuthServiceClient {
-    @GetMapping("/api/v1/users/get_by_id/{userId}")
+
+    @GetMapping("/internal/users/{userId}")
     UserDto getUserById(@PathVariable("userId") Long userId);
 
-    @GetMapping("/api/v1/users/by-email/{email}")
+    @GetMapping("/internal/users/email/{email}")
     UserDto getUserByEmail(@PathVariable("email") String email);
+
+    @GetMapping("/internal/users/{userId}/exists")
+    boolean userExists(@PathVariable("userId") Long userId);
 }

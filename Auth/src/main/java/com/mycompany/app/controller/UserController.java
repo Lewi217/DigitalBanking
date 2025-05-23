@@ -21,7 +21,7 @@ public class UserController {
     private final IUserService userService;
 
     @GetMapping("/get_by_id/{userId}")
-    public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse> getUserById(@PathVariable("userId") Long userId) {
         try {
             User user = userService.getUserById(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @PutMapping("/update/{userId}")
-    public ResponseEntity<ApiResponse> updateUser(@PathVariable Long userId, @RequestBody UserUpdateRequest request) {
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable("userId") Long userId, @RequestBody UserUpdateRequest request) {
         try {
             User user = userService.updateUser(request, userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") Long userId) {
         try {
             userService.deleteUser(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, null));
@@ -50,7 +50,7 @@ public class UserController {
         }
     }
     @GetMapping("/by-email/{email}")
-    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserDto> getUserByEmail(@PathVariable("email") String email) {
         User user = userService.loadUserByUsername(email);
         UserDto dto = userService.convertUserToDto(user);
         return ResponseEntity.ok(dto);

@@ -36,6 +36,17 @@ eureka:
   instance:
     prefer-ip-address: true
 
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+        loggerLevel: full
+      auth-service:
+        connectTimeout: 10000
+        readTimeout: 10000
+
 api:
   prefix: /api/v1
 
