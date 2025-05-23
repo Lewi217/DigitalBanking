@@ -4,6 +4,7 @@ import com.mycompany.app.SecurityConfigs.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -32,24 +33,58 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+    @Order(1) // Higher priority for internal endpoints - ALLOW ALL
+    public SecurityFilterChain internalSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/internal/**")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/internal/**").permitAll() // Allow all internal calls
+                        .anyRequest().denyAll()
+                )
+                .build();
+    }
+
+    @Bean
+    @Order(2) // Lower priority for API endpoints
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/api/**")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Public endpoints
+
+                        // Public authentication endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        // Allow internal service endpoints
-                        .requestMatchers("/api/v1/users/by-email/**").permitAll() // Important change here
-                        .requestMatchers("/api/v1/users/get_by_id/**").permitAll() // Important change here
-                        // All other endpoints need authentication
+
+                        // All other user management endpoints require authentication
+                        .requestMatchers("/api/v1/users/**").authenticated()
+
+                        // All other API endpoints require authentication
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
-        return http.build();
+    @Bean
+    @Order(3) // Lowest priority for actuator endpoints
+    public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/actuator/**")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .anyRequest().denyAll()
+                )
+                .build();
     }
 
     @Bean
