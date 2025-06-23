@@ -9,7 +9,7 @@
 - ApacheKafa
 - SpringCloud
 - OpenFeign
-- Zookeeper**
+- Zookeeper
 
 ### Features:
 - Account Service
