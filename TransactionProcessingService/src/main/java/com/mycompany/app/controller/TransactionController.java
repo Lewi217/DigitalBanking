@@ -37,7 +37,7 @@ public class TransactionController {
         }
     }
     @GetMapping("/history/{accountId}")
-    public ResponseEntity<ApiResponse> history(@PathVariable Long accountId) {
+    public ResponseEntity<ApiResponse> history(@PathVariable String accountId) {
         try {
             List<TransactionDto> list = transactionService.history(accountId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, list));

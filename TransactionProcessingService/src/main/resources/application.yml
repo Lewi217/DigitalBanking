@@ -29,19 +29,19 @@ spring:
       token:
         secret-key: ${secret.key}
 
-  # Kafka (producer) settings
-  kafka:
-    bootstrap-servers: ${kafka.bootstrap-servers:localhost:9092}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    # (if you ever consume, you can uncomment/adjust these)
-    # consumer:
-    #   group-id: transaction-service
-    #   key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    #   value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-    #   properties:
-    #     spring.json.trusted.packages: com.mycompany.app.events
+#  # Kafka (producer) settings
+#  kafka:
+#    bootstrap-servers: localhost:9092
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#    # (if you ever consume, you can uncomment/adjust these)
+#    # consumer:
+#    #   group-id: transaction-service
+#    #   key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#    #   value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#    #   properties:
+#    #     spring.json.trusted.packages: com.mycompany.app.events
 
 eureka:
   client:

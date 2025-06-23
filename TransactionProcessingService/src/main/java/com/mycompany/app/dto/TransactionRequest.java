@@ -8,8 +8,8 @@ import java.time.Instant;
 
 @Data
 public class TransactionRequest {
-    public Long fromAccountId;
-    public Long toAccountId;
+    public String fromAccountId;
+    public String toAccountId;
     public BigDecimal amount;
     public TransactionType type;
     public Instant scheduleAt;

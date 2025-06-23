@@ -13,8 +13,8 @@ import java.time.Instant;
 @AllArgsConstructor
 public class TransactionEvent {
     private String transactionId;
-    private Long fromAccountId;
-    private Long toAccountId;
+    private String fromAccountId;
+    private String toAccountId;
     private BigDecimal amount;
     private Instant timestamp;
     private TransactionType type;

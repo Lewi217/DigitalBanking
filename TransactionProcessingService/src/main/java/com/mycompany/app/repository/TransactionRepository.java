@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.Instant;
 import java.util.List;
 
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByFromAccountIdOrToAccountId(Long from, Long to);
+public interface TransactionRepository extends JpaRepository<Transaction, String> {
+    List<Transaction> findByFromAccountIdOrToAccountId(String from, String to);
     List<Transaction> findByCreatedAtBetween(Instant start, Instant end);
 }

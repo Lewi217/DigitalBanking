@@ -1,6 +1,5 @@
 server:
   port: 8084
-
 spring:
   application:
     name: api-gateway
@@ -15,13 +14,27 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        # Auth service routes - PUBLIC endpoints first
+        # Internal service routes - HIGHEST PRIORITY
         - id: auth-service-internal
           uri: lb://auth-service
           predicates:
-            - Path=/internal/**
+            - Path=/internal/users/**
           filters:
-            - RewritePath=/internal/(?<path>.*), /internal/$\{path}
+            - RewritePath=/internal/users/(?<path>.*), /internal/users/$\{path}
+
+        - id: account-service-internal
+          uri: lb://account-service
+          predicates:
+            - Path=/internal/accounts/**
+          filters:
+            - RewritePath=/internal/accounts/(?<path>.*), /internal/accounts/$\{path}
+
+        - id: transaction-service-internal
+          uri: lb://transaction-service
+          predicates:
+            - Path=/internal/transactions/**
+          filters:
+            - RewritePath=/internal/transactions/(?<path>.*), /internal/transactions/$\{path}
 
         # Auth service - public auth endpoints
         - id: auth-service-public
@@ -41,6 +54,12 @@ spring:
           predicates:
             - Path=/api/v1/accounts/**
 
+        # Transaction service routes
+        - id: transaction-service
+          uri: lb://transaction-service
+          predicates:
+            - Path=/api/v1/transactions/**
+
 eureka:
   client:
     service-url:
@@ -55,4 +74,3 @@ management:
     web:
       exposure:
         include: health,info,gateway
-
