@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface ITransactionService {
     TransactionDto process(TransactionRequest request);
-    List<TransactionDto> history(Long accountId);
+    List<TransactionDto> history(String accountId);
     List<TransactionDto> search(Instant from, Instant to);
 }
