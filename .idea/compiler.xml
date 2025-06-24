@@ -30,7 +30,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="TransactionProcessingService" options="--add-exports java.base/sun.security.timestamp=ALL-UNNAMED" />
+      <module name="TransactionProcessingService" options="" />
     </option>
   </component>
 </project>
