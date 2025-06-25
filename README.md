@@ -15,5 +15,6 @@
 - Account Service
 - Auth Service
 - Transaction Processing Service
+- Notification Service
 - More features are still in development 
 
