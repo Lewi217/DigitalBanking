@@ -14,8 +14,9 @@ import java.util.List;
 
 import static com.mycompany.app.exceptions.ApiResponseUtils.REQUEST_ERROR_MESSAGE;
 import static com.mycompany.app.exceptions.ApiResponseUtils.REQUEST_SUCCESS_MESSAGE;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static sun.security.timestamp.TSResponse.BAD_REQUEST;
+
 
 @RestController
 @RequestMapping("${api.prefix}/transactions")

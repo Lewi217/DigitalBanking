@@ -1,4 +1,4 @@
-package com.mycompany.app.utility;
+package com.mycompany.app.utilitis;
 
 import com.mycompany.app.dto.UserDto;
 import com.mycompany.app.model.User;
@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ModelMapperConfig {
-
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
