@@ -1,25 +1,29 @@
 package com.mycompany.app.service;
 
+import com.mycompany.app.client.NotificationServiceClient;
 import com.mycompany.app.dto.TransactionDto;
 import com.mycompany.app.dto.TransactionRequest;
 import com.mycompany.app.model.Transaction;
 import com.mycompany.app.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class TransactionService implements ITransactionService{
+public class TransactionService implements ITransactionService {
+
     private final TransactionRepository repo;
-    //private final KafkaTemplate<String, TransactionEvent> kafka;
+    private final NotificationServiceClient notificationClient;
 
     @Override
-    public TransactionDto process(TransactionRequest request){
-        //Save to db
+    public TransactionDto process(TransactionRequest request) {
+        // Save to db
         Transaction transaction = new Transaction();
         transaction.setFromAccountId(request.fromAccountId);
         transaction.setToAccountId(request.toAccountId);
@@ -29,18 +33,17 @@ public class TransactionService implements ITransactionService{
         transaction.setScheduledAt(request.scheduleAt);
         transaction = repo.save(transaction);
 
-//        //publish event
-//        TransactionEvent event = new TransactionEvent(
-//                transaction.getId().toString(),
-//                transaction.getFromAccountId(),
-//                transaction.getToAccountId(),
-//                transaction.getAmount(),
-//                transaction.getCreatedAt(),
-//                transaction.getType()
-//        );
-//        kafka.send(Topics.TRANSACTION_EVENTS, event.getTransactionId(), event);
+        // Send notification asynchronously
+        try {
+            notificationClient.sendTransactionNotification(
+                    request.fromAccountId, // Assuming this maps to userId
+                    request.type.toString(),
+                    request.amount.toString(),
+                    request.fromAccountId
+            );
+        } catch (Exception e) {
+        }
 
-        // Return the TransactionDto
         return new TransactionDto(
                 transaction.getId(),
                 transaction.getAmount(),
