@@ -45,7 +45,6 @@ public class NotificationService implements INotificationService{
             throw new RuntimeException("Failed to create notification: " + e.getMessage());
         }
     }
-
     @Override
     public Notification createNotification(NotificationRequest request) {
         Notification notification = new Notification();
