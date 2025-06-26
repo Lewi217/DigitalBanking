@@ -23,7 +23,7 @@ import java.util.List;
 public class AccountService implements IAccountService {
     private final AccountRepository accountRepository;
     private final AuthServiceClient authServiceClient;
-    private final ModelMapper mapper;
+    private final ModelMapper modelMapper;
     private final AccountNumberGenerator accountNumberGenerator;
 
     @Override
@@ -91,6 +91,6 @@ public class AccountService implements IAccountService {
 
     @Override
     public AccountDto convertToDto(Account account) {
-        return mapper.map(account, AccountDto.class);
+        return modelMapper.map(account, AccountDto.class);
     }
 }

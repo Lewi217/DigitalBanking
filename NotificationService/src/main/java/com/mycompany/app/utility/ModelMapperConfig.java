@@ -1,4 +1,4 @@
-package com.mycompany.app.utilitis;
+package com.mycompany.app.utility;
 
 import com.mycompany.app.dto.UserDto;
 import com.mycompany.app.model.User;

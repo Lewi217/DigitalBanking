@@ -28,18 +28,20 @@ spring:
     jwt:
       token:
         secret-key: ${secret.key}
-
   mail:
-  host: ${mail.host}
-  port: ${mail.port}
-  username: ${mail.username}
-  password: ${mail.password}
-  properties:
-    mail:
-      smtp:
-        auth: true
-        starttls:
-          enable: true
+    host: ${mail.host}
+    port: ${mail.port}
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 eureka:
   client:

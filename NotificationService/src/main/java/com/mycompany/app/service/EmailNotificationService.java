@@ -2,6 +2,9 @@ package com.mycompany.app.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -9,26 +12,33 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailNotificationService {
 
-    // For testing purposes, we'll simulate email sending
-    // In production, integrate with JavaMailSender or SendGrid
+    private final JavaMailSender mailSender;
+
+    @Value("${spring.mail.from:noreply@mycompany.com}")
+    private String fromEmail;
+
     public boolean sendEmail(String to, String subject, String text) {
         try {
-            // Simulate email sending delay
-            Thread.sleep(100);
 
-            log.info("📧 EMAIL SENT to: {} | Subject: {} | Message: {}", to, subject, text);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
 
-            // In real implementation:
-            // SimpleMailMessage message = new SimpleMailMessage();
-            // message.setTo(to);
-            // message.setSubject(subject);
-            // message.setText(text);
-            // mailSender.send(message);
-
+            mailSender.send(message);
             return true;
 
         } catch (Exception e) {
-            log.error("Failed to send email to: {}", to, e);
+            return false;
+        }
+    }
+
+    public boolean sendHtmlEmail(String to, String subject, String htmlContent) {
+        try {
+            return true;
+
+        } catch (Exception e) {
             return false;
         }
     }
