@@ -9,4 +9,5 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, String> {
     List<Transaction> findByFromAccountIdOrToAccountId(String from, String to);
     List<Transaction> findByCreatedAtBetween(Instant start, Instant end);
+    List<Transaction> findByFromAccountIdAndCreatedAtAfter(String fromAccountId, Instant after);
 }

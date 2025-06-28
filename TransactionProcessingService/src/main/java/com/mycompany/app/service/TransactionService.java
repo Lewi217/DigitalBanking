@@ -3,10 +3,12 @@ package com.mycompany.app.service;
 import com.mycompany.app.client.NotificationServiceClient;
 import com.mycompany.app.dto.TransactionDto;
 import com.mycompany.app.dto.TransactionRequest;
+import com.mycompany.app.events.TransactionCreatedEvent;
 import com.mycompany.app.model.Transaction;
 import com.mycompany.app.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ public class TransactionService implements ITransactionService {
 
     private final TransactionRepository repo;
     private final NotificationServiceClient notificationClient;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public TransactionDto process(TransactionRequest request) {
@@ -33,10 +36,11 @@ public class TransactionService implements ITransactionService {
         transaction.setScheduledAt(request.scheduleAt);
         transaction = repo.save(transaction);
 
+        eventPublisher.publishEvent(new TransactionCreatedEvent(this, transaction));
         // Send notification asynchronously
         try {
             notificationClient.sendTransactionNotification(
-                    request.fromAccountId, // Assuming this maps to userId
+                    request.fromAccountId,
                     request.type.toString(),
                     request.amount.toString(),
                     request.fromAccountId
