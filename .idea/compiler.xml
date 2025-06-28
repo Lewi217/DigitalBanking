@@ -26,6 +26,7 @@
     <bytecodeTargetLevel>
       <module name="Authentication" target="17" />
       <module name="Authy" target="17" />
+      <module name="FraudDetection" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

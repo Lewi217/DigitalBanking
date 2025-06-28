@@ -20,7 +20,7 @@
     <module>AccountService</module>
       <module>TransactionProcessingService</module>
       <module>NotificationService</module>
-      <module>FraudDetection</module>
+
   </modules>
 
   <properties>
