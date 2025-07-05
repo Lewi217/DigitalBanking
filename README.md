@@ -12,9 +12,24 @@
 - Zookeeper
 
 ### Features:
+## Core Services:
 - Account Service
 - Auth Service
 - Transaction Processing Service
 - Notification Service
-- More features are still in development 
+
+ ## Supporting Services:
+ - Fraud Detection Service
+ - Customer Analytics Serice
+ - Reporting Service
+ - Compliance Monitoring Services
+
+ ## Infrastructure Services:
+ - API Gateway
+ - Service Discovery
+ - Configuration Service
+ - Circuit Breaker Service
+
+ ## Data Architecture:
+ Polyglot Persistence.
 
