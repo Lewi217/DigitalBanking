@@ -1,0 +1,70 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: customer-analytics-service
+  config:
+    import: "optional:classpath:keys.properties"
+  data:
+    mongodb:
+      uri: ${db.url}
+  cloud:
+    config:
+      enabled: false
+    import-check:
+      enabled: false
+  security:
+    jwt:
+      token:
+        secret-key: ${secret.key}
+  elasticsearch:
+    rest:
+      uris: ${elasticsearch.url}
+      username: ${elasticsearch.username}
+      password: ${elasticsearch.password}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+        loggerLevel: full
+      account-service:
+        connectTimeout: 10000
+        readTimeout: 10000
+      transaction-service:
+        connectTimeout: 10000
+        readTimeout: 10000
+      auth-service:
+        connectTimeout: 10000
+        readTimeout: 10000
+
+api:
+  prefix: /api/v1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+analytics:
+  patterns:
+    analysis-period-days: 90
+    min-confidence-threshold: 0.7
+    batch-size: 1000
+  recommendations:
+    max-per-user: 10
+    validity-days: 30
+    refresh-interval-hours: 24
+  processing:
+    thread-pool-size: 5
+    queue-capacity: 100

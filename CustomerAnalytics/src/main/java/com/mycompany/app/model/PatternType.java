@@ -1,0 +1,11 @@
+package com.mycompany.app.model;
+
+public enum PatternType {
+    SPENDING_HABIT,
+    INCOME_PATTERN,
+    SAVINGS_BEHAVIOR,
+    TRANSACTION_FREQUENCY,
+    CATEGORY_PREFERENCE,
+    SEASONAL_PATTERN,
+    RISK_TOLERANCE
+}
