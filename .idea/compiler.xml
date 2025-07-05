@@ -13,6 +13,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="CustomerAnalytics" />
         <module name="common" />
         <module name="API_Gateway" />
         <module name="Auth" />
