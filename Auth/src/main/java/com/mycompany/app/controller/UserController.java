@@ -23,32 +23,32 @@ public class UserController {
     private final IUserService userService;
 
     @GetMapping("/get_by_id/{userId}")
-    public ResponseEntity<ApiResponse<Collection<E>>> getUserById(@PathVariable("userId") Long userId) {
+    public ResponseEntity<ApiResponse> getUserById(@PathVariable("userId") Long userId) {
         try {
             User user = userService.getUserById(userId);
-            return ResponseEntity.ok(new ApiResponse<Collection<E>>(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
+            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
         } catch (CustomExceptionResponse e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse<Collection<E>>(REQUEST_ERROR_MESSAGE, e.getMessage()));
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
     }
 
     @PutMapping("/update/{userId}")
-    public ResponseEntity<ApiResponse<Collection<E>>> updateUser(@PathVariable("userId") Long userId, @RequestBody UserUpdateRequest request) {
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable("userId") Long userId, @RequestBody UserUpdateRequest request) {
         try {
             User user = userService.updateUser(request, userId);
-            return ResponseEntity.ok(new ApiResponse<Collection<E>>(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
+            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, userService.convertUserToDto(user)));
         } catch (CustomExceptionResponse e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse<Collection<E>>(REQUEST_ERROR_MESSAGE, e.getMessage()));
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
     }
 
     @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<ApiResponse<Collection<E>>> deleteUser(@PathVariable("userId") Long userId) {
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") Long userId) {
         try {
             userService.deleteUser(userId);
-            return ResponseEntity.ok(new ApiResponse<Collection<E>>(REQUEST_SUCCESS_MESSAGE, null));
+            return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, null));
         } catch (CustomExceptionResponse e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse<Collection<E>>(REQUEST_ERROR_MESSAGE, e.getMessage()));
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(REQUEST_ERROR_MESSAGE, e.getMessage()));
         }
     }
     @GetMapping("/by-email/{email}")
