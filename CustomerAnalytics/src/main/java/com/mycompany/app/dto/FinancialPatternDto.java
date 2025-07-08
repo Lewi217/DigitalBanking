@@ -14,7 +14,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FinancialPatternDto {
-    private Long id;
+    private String id;
     private String userId;
     private String accountId;
     private PatternType patternType;
