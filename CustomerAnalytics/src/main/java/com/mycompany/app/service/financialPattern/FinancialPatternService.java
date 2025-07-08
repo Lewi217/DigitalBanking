@@ -8,6 +8,7 @@ import com.mycompany.app.dto.TransactionDto;
 import com.mycompany.app.model.FinancialPattern;
 import com.mycompany.app.model.PatternType;
 import com.mycompany.app.repository.FinancialPatternRepository;
+import com.mycompany.app.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class FinancialPatternService {
 
     private final FinancialPatternRepository financialPatternRepository;
@@ -34,196 +35,106 @@ public class FinancialPatternService {
 
     @Transactional
     public List<FinancialPatternDto> analyzeUserPatterns(String userId) {
-        try {
-            // Get user accounts
-            ApiResponse<List<AccountDto>> accountsResponse = accountServiceClient.getUserAccounts(Long.valueOf(userId));
-            if (accountsResponse.getData() == null || accountsResponse.getData().isEmpty()) {
-                log.warn("No accounts found for user: {}", userId);
-                return Collections.emptyList();
-            }
+        ApiResponse response = accountServiceClient.getUserAccounts(Long.valueOf(userId));
+        List<AccountDto> accounts = (List<AccountDto>) response.getData();
 
-            List<FinancialPattern> patterns = new ArrayList<>();
-
-            // Analyze patterns for each account
-            for (AccountDto account : accountsResponse.getData()) {
-                patterns.addAll(analyzeAccountPatterns(userId, account.getAccountNumber()));
-            }
-
-            // Save patterns
-            List<FinancialPattern> savedPatterns = financialPatternRepository.saveAll(patterns);
-
-            return savedPatterns.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            log.error("Error analyzing financial patterns for user: {}", userId, e);
+        if (accounts == null || accounts.isEmpty()) {
             return Collections.emptyList();
         }
+        List<FinancialPattern> patterns = new ArrayList<>();
+
+        for (AccountDto account : accounts) {
+            patterns.addAll(analyzeAccountPatterns(userId, account.getAccountNumber()));
+        }
+        List<FinancialPattern> savedPatterns = financialPatternRepository.saveAll(patterns);
+
+        return savedPatterns.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     private List<FinancialPattern> analyzeAccountPatterns(String userId, String accountNumber) {
         List<FinancialPattern> patterns = new ArrayList<>();
-
-        try {
-            // Get last 90 days of transactions
-            Instant end = Instant.now();
-            Instant start = end.minus(90, ChronoUnit.DAYS);
-
-            ApiResponse<List<TransactionDto>> transactionsResponse =
-                    transactionServiceClient.getTransactionHistory(accountNumber);
-
-            if (transactionsResponse.getData() == null) {
-                return patterns;
-            }
-
-            List<TransactionDto> transactions = transactionsResponse.getData().stream()
-                    .filter(t -> t.getCreatedAt().isAfter(start))
-                    .collect(Collectors.toList());
-
-            // Analyze spending patterns
-            patterns.addAll(analyzeSpendingPatterns(userId, accountNumber, transactions, start, end));
-
-            // Analyze income patterns
-            patterns.addAll(analyzeIncomePatterns(userId, accountNumber, transactions, start, end));
-
-            // Analyze category preferences
-            patterns.addAll(analyzeCategoryPatterns(userId, accountNumber, transactions, start, end));
-
-        } catch (Exception e) {
-            log.error("Error analyzing patterns for account: {}", accountNumber, e);
-        }
-
-        return patterns;
-    }
-
-    private List<FinancialPattern> analyzeSpendingPatterns(String userId, String accountNumber,
-                                                           List<TransactionDto> transactions,
-                                                           Instant start, Instant end) {
-        List<FinancialPattern> patterns = new ArrayList<>();
-
-        // Filter outgoing transactions
-        List<TransactionDto> outgoingTransactions = transactions.stream()
-                .filter(t -> t.getFromAccount().equals(accountNumber))
-                .filter(t -> t.getAmount().compareTo(BigDecimal.ZERO) > 0)
-                .collect(Collectors.toList());
-
-        if (outgoingTransactions.isEmpty()) {
+        Instant end = Instant.now();
+        Instant start = end.minus(90, ChronoUnit.DAYS);
+        ApiResponse response = transactionServiceClient.getTransactionHistory(accountNumber);
+        List<TransactionDto> transactions = (List<TransactionDto>) response.getData();
+        if (transactions == null || transactions.isEmpty()) {
             return patterns;
         }
 
-        // Calculate spending statistics
-        BigDecimal totalSpending = outgoingTransactions.stream()
+        transactions = transactions.stream()
+                .filter(t -> t.getTimestamp() != null && t.getTimestamp().isAfter(start))
+                .collect(Collectors.toList());
+        patterns.addAll(analyzeSpendingPatterns(userId, accountNumber, transactions, start, end));
+        patterns.addAll(analyzeIncomePatterns(userId, accountNumber, transactions, start, end));
+        return patterns;
+    }
+
+    private List<FinancialPattern> analyzeSpendingPatterns(String userId, String accountNumber,List<TransactionDto> transactions, Instant start, Instant end) {
+        List<TransactionDto> outgoing = transactions.stream()
+                .filter(t -> t.getType() != null && t.getType().isDebit())
+                .collect(Collectors.toList());
+
+        if (outgoing.isEmpty()) return Collections.emptyList();
+
+        BigDecimal total = outgoing.stream()
                 .map(TransactionDto::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal averageSpending = totalSpending
-                .divide(BigDecimal.valueOf(outgoingTransactions.size()), 2, RoundingMode.HALF_UP);
+        BigDecimal average = total.divide(BigDecimal.valueOf(outgoing.size()), 2, RoundingMode.HALF_UP);
 
-        patterns.add(FinancialPattern.builder()
+        FinancialPattern pattern = FinancialPattern.builder()
                 .userId(userId)
                 .accountId(accountNumber)
                 .patternType(PatternType.SPENDING_HABIT)
-                .averageAmount(averageSpending)
-                .totalAmount(totalSpending)
-                .frequency(outgoingTransactions.size())
+                .averageAmount(average)
+                .totalAmount(total)
+                .frequency(outgoing.size())
                 .description("Average spending pattern over 90 days")
                 .analyzedAt(Instant.now())
                 .periodStart(start)
                 .periodEnd(end)
                 .confidence(0.85)
-                .build());
+                .build();
 
-        return patterns;
+        return List.of(pattern);
     }
 
-    private List<FinancialPattern> analyzeIncomePatterns(String userId, String accountNumber,
-                                                         List<TransactionDto> transactions,
-                                                         Instant start, Instant end) {
-        List<FinancialPattern> patterns = new ArrayList<>();
-
-        // Filter incoming transactions
-        List<TransactionDto> incomingTransactions = transactions.stream()
-                .filter(t -> t.getToAccount().equals(accountNumber))
-                .filter(t -> t.getAmount().compareTo(BigDecimal.ZERO) > 0)
+    private List<FinancialPattern> analyzeIncomePatterns(String userId, String accountNumber,List<TransactionDto> transactions, Instant start, Instant end) {
+        List<TransactionDto> incoming = transactions.stream()
+                .filter(t -> t.getType() != null && t.getType().isCredit())
                 .collect(Collectors.toList());
 
-        if (incomingTransactions.isEmpty()) {
-            return patterns;
-        }
+        if (incoming.isEmpty()) return Collections.emptyList();
 
-        // Calculate income statistics
-        BigDecimal totalIncome = incomingTransactions.stream()
+        BigDecimal total = incoming.stream()
                 .map(TransactionDto::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal averageIncome = totalIncome
-                .divide(BigDecimal.valueOf(incomingTransactions.size()), 2, RoundingMode.HALF_UP);
+        BigDecimal average = total.divide(BigDecimal.valueOf(incoming.size()), 2, RoundingMode.HALF_UP);
 
-        patterns.add(FinancialPattern.builder()
+        FinancialPattern pattern = FinancialPattern.builder()
                 .userId(userId)
                 .accountId(accountNumber)
                 .patternType(PatternType.INCOME_PATTERN)
-                .averageAmount(averageIncome)
-                .totalAmount(totalIncome)
-                .frequency(incomingTransactions.size())
+                .averageAmount(average)
+                .totalAmount(total)
+                .frequency(incoming.size())
                 .description("Average income pattern over 90 days")
                 .analyzedAt(Instant.now())
                 .periodStart(start)
                 .periodEnd(end)
                 .confidence(0.80)
-                .build());
+                .build();
 
-        return patterns;
-    }
-
-    private List<FinancialPattern> analyzeCategoryPatterns(String userId, String accountNumber,
-                                                           List<TransactionDto> transactions,
-                                                           Instant start, Instant end) {
-        List<FinancialPattern> patterns = new ArrayList<>();
-
-        // Group transactions by category
-        Map<String, List<TransactionDto>> categoryGroups = transactions.stream()
-                .filter(t -> t.getCategory() != null && !t.getCategory().isEmpty())
-                .collect(Collectors.groupingBy(TransactionDto::getCategory));
-
-        for (Map.Entry<String, List<TransactionDto>> entry : categoryGroups.entrySet()) {
-            String category = entry.getKey();
-            List<TransactionDto> categoryTransactions = entry.getValue();
-
-            BigDecimal totalAmount = categoryTransactions.stream()
-                    .map(TransactionDto::getAmount)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            BigDecimal averageAmount = totalAmount
-                    .divide(BigDecimal.valueOf(categoryTransactions.size()), 2, RoundingMode.HALF_UP);
-
-            patterns.add(FinancialPattern.builder()
-                    .userId(userId)
-                    .accountId(accountNumber)
-                    .patternType(PatternType.CATEGORY_PREFERENCE)
-                    .category(category)
-                    .averageAmount(averageAmount)
-                    .totalAmount(totalAmount)
-                    .frequency(categoryTransactions.size())
-                    .description("Spending pattern for category: " + category)
-                    .analyzedAt(Instant.now())
-                    .periodStart(start)
-                    .periodEnd(end)
-                    .confidence(0.75)
-                    .build());
-        }
-
-        return patterns;
+        return List.of(pattern);
     }
 
     public List<FinancialPatternDto> getUserPatterns(String userId, PatternType patternType) {
-        List<FinancialPattern> patterns;
-        if (patternType != null) {
-            patterns = financialPatternRepository.findByUserIdAndPatternType(userId, patternType);
-        } else {
-            patterns = financialPatternRepository.findByUserId(userId);
-        }
+        List<FinancialPattern> patterns = patternType != null
+                ? financialPatternRepository.findByUserIdAndPatternType(userId, patternType)
+                : financialPatternRepository.findByUserId(userId);
 
         return patterns.stream()
                 .map(this::convertToDto)
@@ -232,7 +143,9 @@ public class FinancialPatternService {
 
     public List<FinancialPatternDto> getHighConfidencePatterns(String userId, Double minConfidence) {
         List<FinancialPattern> patterns = financialPatternRepository
-                .findHighConfidencePatterns(userId, minConfidence != null ? minConfidence : 0.7);
+                .findByUserId(userId).stream()
+                .filter(p -> p.getConfidence() >= (minConfidence != null ? minConfidence : 0.7))
+                .collect(Collectors.toList());
 
         return patterns.stream()
                 .map(this::convertToDto)
@@ -257,4 +170,5 @@ public class FinancialPatternService {
                 .build();
     }
 }
+
 
