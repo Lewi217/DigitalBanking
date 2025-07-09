@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AnalyticsSummaryService {
+public class AnalyticsSummaryService implements IAnalyticsSummaryService{
 
     private final AnalyticsSummaryRepository analyticsSummaryRepository;
     private final UserBehaviorRepository userBehaviorRepository;
@@ -34,6 +34,7 @@ public class AnalyticsSummaryService {
     private final TransactionServiceClient transactionServiceClient;
 
     @Transactional
+    @Override
     public AnalyticsSummaryDto generateSummary(String userId, String period) {
         Instant[] periodBounds = calculatePeriodBounds(period);
         Instant start = periodBounds[0];
@@ -47,7 +48,8 @@ public class AnalyticsSummaryService {
         return convertToDto(savedSummary);
     }
 
-    private List<TransactionDto> fetchUserTransactions(String userId, List<AccountDto> accounts, Instant start, Instant end) {
+    @Override
+    public List<TransactionDto> fetchUserTransactions(String userId, List<AccountDto> accounts, Instant start, Instant end) {
         if (accounts == null || accounts.isEmpty()) {
             return Collections.emptyList();
         }
@@ -74,8 +76,8 @@ public class AnalyticsSummaryService {
         return allTransactions;
     }
 
-    private AnalyticsSummary calculateSummaryMetrics(String userId, String period, Instant start, Instant end,
-                                                     List<UserBehavior> behaviors, List<TransactionDto> transactions) {
+    @Override
+    public AnalyticsSummary calculateSummaryMetrics(String userId, String period, Instant start, Instant end, List<UserBehavior> behaviors, List<TransactionDto> transactions) {
 
         int loginCount = (int) behaviors.stream()
                 .filter(b -> "LOGIN".equals(b.getAction()))
@@ -129,7 +131,8 @@ public class AnalyticsSummaryService {
                 .build();
     }
 
-    private String findMostUsedFeature(List<UserBehavior> behaviors) {
+    @Override
+    public String findMostUsedFeature(List<UserBehavior> behaviors) {
         return behaviors.stream()
                 .collect(Collectors.groupingBy(UserBehavior::getAction, Collectors.counting()))
                 .entrySet().stream()
@@ -138,7 +141,8 @@ public class AnalyticsSummaryService {
                 .orElse("UNKNOWN");
     }
 
-    private Map<String, String> calculateAdditionalMetrics(List<UserBehavior> behaviors) {
+    @Override
+    public Map<String, String> calculateAdditionalMetrics(List<UserBehavior> behaviors) {
         Map<String, String> metrics = new HashMap<>();
 
         long uniqueSessions = behaviors.stream()
@@ -169,7 +173,8 @@ public class AnalyticsSummaryService {
         return metrics;
     }
 
-    private Instant[] calculatePeriodBounds(String period) {
+    @Override
+    public Instant[] calculatePeriodBounds(String period) {
         Instant now = Instant.now();
         Instant start, end;
 
@@ -202,6 +207,7 @@ public class AnalyticsSummaryService {
         return new Instant[]{start, end};
     }
 
+    @Override
     public List<AnalyticsSummaryDto> getUserSummaries(String userId, String period) {
         List<AnalyticsSummary> summaries = (period != null)
                 ? analyticsSummaryRepository.findByUserIdAndPeriodOrderByPeriodStartDesc(userId, period)
@@ -212,6 +218,7 @@ public class AnalyticsSummaryService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public AnalyticsSummaryDto getLatestSummary(String userId) {
         return analyticsSummaryRepository.findByUserId(userId).stream()
                 .max(Comparator.comparing(AnalyticsSummary::getPeriodStart))
@@ -219,6 +226,7 @@ public class AnalyticsSummaryService {
                 .orElse(null);
     }
 
+    @Override
     public List<AnalyticsSummaryDto> getSummariesByDateRange(String userId, Instant start, Instant end) {
         return analyticsSummaryRepository.findByPeriodStartBetweenOrderByPeriodStartDesc(start, end).stream()
                 .filter(summary -> summary.getUserId().equals(userId))
@@ -226,6 +234,7 @@ public class AnalyticsSummaryService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Map<String, Object> getUserMetricsSummary(String userId) {
         List<AnalyticsSummary> summaries = analyticsSummaryRepository.findByUserId(userId);
         Map<String, Object> metrics = new HashMap<>();
@@ -251,6 +260,7 @@ public class AnalyticsSummaryService {
 
     @Scheduled(cron = "0 0 2 * * ?")
     @Transactional
+    @Override
     public void generateDailySummaries() {
         Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
         List<UserBehavior> recent = userBehaviorRepository.findByUserIdAndTimestampBetween(null, yesterday, Instant.now());
@@ -263,6 +273,7 @@ public class AnalyticsSummaryService {
 
     @Scheduled(cron = "0 0 3 * * MON")
     @Transactional
+    @Override
     public void generateWeeklySummaries() {
         Instant lastWeek = Instant.now().minus(7, ChronoUnit.DAYS);
         List<UserBehavior> recent = userBehaviorRepository.findByUserIdAndTimestampBetween(null, lastWeek, Instant.now());
@@ -275,6 +286,7 @@ public class AnalyticsSummaryService {
 
     @Scheduled(cron = "0 0 4 1 * ?")
     @Transactional
+    @Override
     public void generateMonthlySummaries() {
         Instant lastMonth = Instant.now().minus(30, ChronoUnit.DAYS);
         List<UserBehavior> recent = userBehaviorRepository.findByUserIdAndTimestampBetween(null, lastMonth, Instant.now());
@@ -285,7 +297,8 @@ public class AnalyticsSummaryService {
         }
     }
 
-    private AnalyticsSummaryDto convertToDto(AnalyticsSummary summary) {
+    @Override
+    public AnalyticsSummaryDto convertToDto(AnalyticsSummary summary) {
         return AnalyticsSummaryDto.builder()
                 .id(summary.getId() != null ? Long.valueOf(summary.getId()) : null)
                 .userId(summary.getUserId())

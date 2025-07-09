@@ -10,7 +10,6 @@ import com.mycompany.app.model.PatternType;
 import com.mycompany.app.repository.FinancialPatternRepository;
 import com.mycompany.app.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,19 +20,19 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
-public class FinancialPatternService {
+public class FinancialPatternService implements IFinancialPatternService{
 
     private final FinancialPatternRepository financialPatternRepository;
     private final AccountServiceClient accountServiceClient;
     private final TransactionServiceClient transactionServiceClient;
 
     @Transactional
+    @Override
     public List<FinancialPatternDto> analyzeUserPatterns(String userId) {
         ApiResponse response = accountServiceClient.getUserAccounts(Long.valueOf(userId));
         List<AccountDto> accounts = (List<AccountDto>) response.getData();
@@ -53,7 +52,8 @@ public class FinancialPatternService {
                 .collect(Collectors.toList());
     }
 
-    private List<FinancialPattern> analyzeAccountPatterns(String userId, String accountNumber) {
+    @Override
+    public List<FinancialPattern> analyzeAccountPatterns(String userId, String accountNumber) {
         List<FinancialPattern> patterns = new ArrayList<>();
         Instant end = Instant.now();
         Instant start = end.minus(90, ChronoUnit.DAYS);
@@ -71,7 +71,8 @@ public class FinancialPatternService {
         return patterns;
     }
 
-    private List<FinancialPattern> analyzeSpendingPatterns(String userId, String accountNumber,List<TransactionDto> transactions, Instant start, Instant end) {
+    @Override
+    public List<FinancialPattern> analyzeSpendingPatterns(String userId, String accountNumber,List<TransactionDto> transactions, Instant start, Instant end) {
         List<TransactionDto> outgoing = transactions.stream()
                 .filter(t -> t.getType() != null && t.getType().isDebit())
                 .collect(Collectors.toList());
@@ -101,7 +102,8 @@ public class FinancialPatternService {
         return List.of(pattern);
     }
 
-    private List<FinancialPattern> analyzeIncomePatterns(String userId, String accountNumber,List<TransactionDto> transactions, Instant start, Instant end) {
+    @Override
+    public List<FinancialPattern> analyzeIncomePatterns(String userId, String accountNumber,List<TransactionDto> transactions, Instant start, Instant end) {
         List<TransactionDto> incoming = transactions.stream()
                 .filter(t -> t.getType() != null && t.getType().isCredit())
                 .collect(Collectors.toList());
@@ -131,6 +133,7 @@ public class FinancialPatternService {
         return List.of(pattern);
     }
 
+    @Override
     public List<FinancialPatternDto> getUserPatterns(String userId, PatternType patternType) {
         List<FinancialPattern> patterns = patternType != null
                 ? financialPatternRepository.findByUserIdAndPatternType(userId, patternType)
@@ -141,6 +144,7 @@ public class FinancialPatternService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<FinancialPatternDto> getHighConfidencePatterns(String userId, Double minConfidence) {
         List<FinancialPattern> patterns = financialPatternRepository
                 .findByUserId(userId).stream()
@@ -152,7 +156,8 @@ public class FinancialPatternService {
                 .collect(Collectors.toList());
     }
 
-    private FinancialPatternDto convertToDto(FinancialPattern pattern) {
+    @Override
+    public FinancialPatternDto convertToDto(FinancialPattern pattern) {
         return FinancialPatternDto.builder()
                 .id(pattern.getId())
                 .userId(pattern.getUserId())
