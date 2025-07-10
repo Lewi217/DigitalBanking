@@ -18,12 +18,6 @@ spring:
     jwt:
       token:
         secret-key: ${secret.key}
-  elasticsearch:
-    rest:
-      uris: ${elasticsearch.url}
-      username: ${elasticsearch.username}
-      password: ${elasticsearch.password}
-
 eureka:
   client:
     service-url:

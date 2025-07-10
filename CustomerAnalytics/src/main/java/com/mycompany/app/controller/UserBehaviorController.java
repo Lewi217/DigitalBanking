@@ -58,8 +58,8 @@ public class UserBehaviorController {
         }
     }
 
-    @GetMapping("/user/{userId}/stats/sessions")
-    public ResponseEntity<ApiResponse> getSessionStats(@PathVariable String userId) {
+    @GetMapping("/user/stats/sessions")
+    public ResponseEntity<ApiResponse> getSessionStats(@RequestParam("userId") String userId) {
         try {
             Map<String, Long> stats = userBehaviorService.getSessionStatistics(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, stats));
@@ -69,8 +69,9 @@ public class UserBehaviorController {
         }
     }
 
-    @GetMapping("/user/{userId}/stats/devices")
-    public ResponseEntity<ApiResponse> getDeviceStats(@PathVariable String userId) {
+
+    @GetMapping("/user/stats/devices")
+    public ResponseEntity<ApiResponse> getDeviceStats(@RequestParam("userId") String userId) {
         try {
             Map<String, Long> stats = userBehaviorService.getDeviceTypeStatistics(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, stats));
@@ -81,7 +82,7 @@ public class UserBehaviorController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> trackLogin(@RequestParam String userId, @RequestParam String sessionId, @RequestParam String deviceType, @RequestParam(required = false) String ipAddress, @RequestParam(required = false) String userAgent) {
+    public ResponseEntity<ApiResponse> trackLogin(@RequestParam("userId") String userId, @RequestParam("sessionId") String sessionId, @RequestParam("deviceType") String deviceType, @RequestParam(value = "ipAddress", required = false) String ipAddress, @RequestParam(value = "userAgent", required = false) String userAgent) {
         try {
             userBehaviorService.trackLogin(userId, sessionId, deviceType, ipAddress, userAgent);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, null));
@@ -92,7 +93,7 @@ public class UserBehaviorController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse> trackLogout(@RequestParam String userId, @RequestParam String sessionId, @RequestParam(required = false) Double duration) {
+    public ResponseEntity<ApiResponse> trackLogout(@RequestParam("userId") String userId, @RequestParam("sessionId") String sessionId, @RequestParam(value = "duration", required = false) Double duration) {
         try {
             userBehaviorService.trackLogout(userId, sessionId, duration);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, null));
@@ -102,8 +103,9 @@ public class UserBehaviorController {
         }
     }
 
+
     @PostMapping("/feature-usage")
-    public ResponseEntity<ApiResponse> trackFeatureUsage(@RequestParam String userId, @RequestParam String sessionId, @RequestParam String feature, @RequestParam(required = false) String deviceType) {
+    public ResponseEntity<ApiResponse> trackFeatureUsage(@RequestParam("userId") String userId, @RequestParam("sessionId") String sessionId, @RequestParam("feature") String feature, @RequestParam(value = "deviceType", required = false) String deviceType) {
         try {
             userBehaviorService.trackFeatureUsage(userId, sessionId, feature, deviceType);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, null));

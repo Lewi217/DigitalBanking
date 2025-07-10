@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "account-service", path = "/internal/accounts")
+@FeignClient(name = "account-service", url = "${account-service.url}", path = "/api/v1/accounts")
 public interface AccountServiceClient {
 
     @GetMapping("/user/{userId}")
-    ApiResponse getUserAccounts(@PathVariable Long userId);
+    ApiResponse getUserAccounts(@PathVariable("userId") Long userId);
 
     @GetMapping("/{accountId}")
-    ApiResponse getAccountById(@PathVariable Long accountId);
+    ApiResponse getAccountById(@PathVariable("accountId") Long accountId);
 }

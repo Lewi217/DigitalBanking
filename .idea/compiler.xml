@@ -32,6 +32,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="CustomerAnalytics" options="" />
       <module name="TransactionProcessingService" options="" />
     </option>
   </component>

@@ -24,7 +24,7 @@ public class AnalyticsSummaryController {
 
 
     @PostMapping("/generate")
-    public ResponseEntity<ApiResponse> generateAnalytics(@RequestParam String userId, @RequestParam String period) {
+    public ResponseEntity<ApiResponse> generateAnalytics(@RequestParam("userId") String userId, @RequestParam("period") String period) {
         try {
             AnalyticsSummaryDto summary = analyticsSummaryService.generateSummary(userId, period);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, summary));

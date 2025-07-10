@@ -14,7 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnalyticsSummaryDto {
-    private Long id;
+    private String id;
     private String userId;
     private String period;
     private Instant periodStart;
