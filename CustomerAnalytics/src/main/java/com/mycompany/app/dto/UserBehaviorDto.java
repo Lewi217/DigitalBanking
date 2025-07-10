@@ -13,7 +13,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserBehaviorDto {
-    private Long id;
+    private String id;
     private String userId;
     private String sessionId;
     private String action;

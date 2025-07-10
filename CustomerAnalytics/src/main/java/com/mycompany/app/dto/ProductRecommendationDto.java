@@ -14,7 +14,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductRecommendationDto {
-    private Long id;
+    private String id;
     private String userId;
     private String productType;
     private String productName;

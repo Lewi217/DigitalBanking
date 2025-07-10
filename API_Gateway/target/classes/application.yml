@@ -1,5 +1,6 @@
 server:
-  port: 8084
+  port: 8080
+
 spring:
   application:
     name: api-gateway
@@ -66,6 +67,35 @@ spring:
           predicates:
             - Path=/api/v1/notifications/**
 
+        # Customer Analytics service routes - UPDATED
+        - id: customer-analytics-service
+          uri: lb://customer-analytics-service
+          predicates:
+            - Path=/api/v1/behavior/**
+          filters:
+            - RewritePath=/api/v1/behavior/(?<path>.*), /api/v1/behavior/$\{path}
+
+        - id: customer-analytics-recommendations
+          uri: lb://customer-analytics-service
+          predicates:
+            - Path=/api/v1/recommendations/**
+          filters:
+            - RewritePath=/api/v1/recommendations/(?<path>.*), /api/v1/recommendations/$\{path}
+
+        - id: customer-analytics-patterns
+          uri: lb://customer-analytics-service
+          predicates:
+            - Path=/api/v1/patterns/**
+          filters:
+            - RewritePath=/api/v1/patterns/(?<path>.*), /api/v1/patterns/$\{path}
+
+        - id: customer-analytics-summary
+          uri: lb://customer-analytics-service
+          predicates:
+            - Path=/api/v1/analytics/**
+          filters:
+            - RewritePath=/api/v1/analytics/(?<path>.*), /api/v1/analytics/$\{path}
+
 eureka:
   client:
     service-url:
@@ -80,3 +110,12 @@ management:
     web:
       exposure:
         include: health,info,gateway
+
+# Application configuration
+api:
+  prefix: /api/v1
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG

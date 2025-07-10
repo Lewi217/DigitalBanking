@@ -300,7 +300,7 @@ public class AnalyticsSummaryService implements IAnalyticsSummaryService{
     @Override
     public AnalyticsSummaryDto convertToDto(AnalyticsSummary summary) {
         return AnalyticsSummaryDto.builder()
-                .id(summary.getId() != null ? Long.valueOf(summary.getId()) : null)
+                .id(summary.getId() != null ? String.valueOf(summary.getId()) : null)
                 .userId(summary.getUserId())
                 .period(summary.getPeriod())
                 .periodStart(summary.getPeriodStart())
