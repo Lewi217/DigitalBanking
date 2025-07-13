@@ -18,6 +18,8 @@ spring:
     jwt:
       token:
         secret-key: ${secret.key}
+account-service:
+  url: ${db.uri}
 eureka:
   client:
     service-url:
