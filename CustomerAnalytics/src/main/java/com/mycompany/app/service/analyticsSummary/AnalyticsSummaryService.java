@@ -1,5 +1,7 @@
 package com.mycompany.app.service.analyticsSummary;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycompany.app.client.AccountServiceClient;
 import com.mycompany.app.client.TransactionServiceClient;
 import com.mycompany.app.dto.AccountDto;
@@ -26,12 +28,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AnalyticsSummaryService implements IAnalyticsSummaryService{
+public class AnalyticsSummaryService implements IAnalyticsSummaryService {
 
     private final AnalyticsSummaryRepository analyticsSummaryRepository;
     private final UserBehaviorRepository userBehaviorRepository;
     private final AccountServiceClient accountServiceClient;
     private final TransactionServiceClient transactionServiceClient;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     @Override
@@ -41,7 +44,11 @@ public class AnalyticsSummaryService implements IAnalyticsSummaryService{
         Instant end = periodBounds[1];
         List<UserBehavior> behaviors = userBehaviorRepository.findByUserIdAndTimestampBetween(userId, start, end);
         ApiResponse accountsResponse = accountServiceClient.getUserAccounts(Long.valueOf(userId));
-        List<AccountDto> accountList = (List<AccountDto>) accountsResponse.getData();
+        List<AccountDto> accountList = objectMapper.convertValue(
+                accountsResponse.getData(),
+                new TypeReference<List<AccountDto>>() {}
+        );
+
         List<TransactionDto> transactions = fetchUserTransactions(userId, accountList, start, end);
         AnalyticsSummary summary = calculateSummaryMetrics(userId, period, start, end, behaviors, transactions);
         AnalyticsSummary savedSummary = analyticsSummaryRepository.save(summary);
