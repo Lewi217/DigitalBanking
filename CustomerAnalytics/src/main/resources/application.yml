@@ -18,8 +18,12 @@ spring:
     jwt:
       token:
         secret-key: ${secret.key}
+auth-service:
+  url: http://localhost:8081
+transaction-service:
+  url: http://localhost:8083
 account-service:
-  url: ${db.uri}
+  url: http://localhost:8082
 eureka:
   client:
     service-url:

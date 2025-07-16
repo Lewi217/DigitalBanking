@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.Instant;
 
 
-@FeignClient(name = "transaction-service", path = "/internal/transactions")
+@FeignClient(name = "transaction-service", url = "${account-service.url}", path = "/internal/transactions" ,configuration = FeignClientConfig.class)
 public interface TransactionServiceClient {
 
     @GetMapping("/history/{accountId}")
