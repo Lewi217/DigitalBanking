@@ -1,9 +1,11 @@
 package com.mycompany.app.controller;
 
 import com.mycompany.app.dto.UserDto;
+import com.mycompany.app.response.ApiResponse;
 import com.mycompany.app.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,6 +26,7 @@ public class InternalUserController {
             );
         }
     }
+
 
     @GetMapping("/email/{email}")
     public UserDto getUserByEmail(@PathVariable("email") String email) {

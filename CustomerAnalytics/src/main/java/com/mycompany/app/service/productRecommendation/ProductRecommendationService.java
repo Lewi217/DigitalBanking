@@ -41,18 +41,14 @@ public class ProductRecommendationService implements IProductRecommendationServi
     @Override
     public List<ProductRecommendationDto> generateAndSaveRecommendations(String userId) {
         try {
-            ApiResponse userResponse = authServiceClient.getUserById(Long.valueOf(userId));
-            UserDto user = userResponse != null ? (UserDto) userResponse.getData() : null;
-
+            UserDto user = authServiceClient.getUserById(Long.valueOf(userId));
             if (user == null) {
                 return Collections.emptyList();
             }
-
             List<FinancialPattern> patterns = financialPatternRepository.findByUserId(userId);
             if (patterns.isEmpty()) {
                 return Collections.emptyList();
             }
-
             List<AccountDto> accounts = getAccountsForUser(userId);
             List<ProductRecommendation> recommendations = generateAllRecommendations(userId, patterns, accounts);
             List<ProductRecommendation> saved = recommendationRepository.saveAll(recommendations);
@@ -60,11 +56,11 @@ public class ProductRecommendationService implements IProductRecommendationServi
             return saved.stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
-
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate recommendations: " + e.getMessage());
         }
     }
+
 
     @Override
     public List<ProductRecommendation> generateAllRecommendations(String userId,

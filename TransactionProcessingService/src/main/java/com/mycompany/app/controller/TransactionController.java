@@ -38,7 +38,7 @@ public class TransactionController {
         }
     }
     @GetMapping("/history/{accountId}")
-    public ResponseEntity<ApiResponse> history(@PathVariable String accountId) {
+    public ResponseEntity<ApiResponse> history(@PathVariable("accountId") String accountId) {
         try {
             List<TransactionDto> list = transactionService.history(accountId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, list));
@@ -52,7 +52,7 @@ public class TransactionController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse> search(@RequestParam Instant from, @RequestParam Instant to) {
+    public ResponseEntity<ApiResponse> search(@RequestParam("from") Instant from, @RequestParam("to") Instant to) {
         try {
             List<TransactionDto> results = transactionService.search(from, to);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, results));
