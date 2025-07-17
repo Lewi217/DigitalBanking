@@ -35,7 +35,7 @@ public class AnalyticsSummaryController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> getUserAnalytics(@PathVariable String userId, @RequestParam(required = false) String period) {
+    public ResponseEntity<ApiResponse> getUserAnalytics(@PathVariable("userId") String userId, @RequestParam(value= "period", required = false) String period) {
         try {
             List<AnalyticsSummaryDto> summaries = analyticsSummaryService.getUserSummaries(userId, period);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, summaries));
@@ -46,7 +46,7 @@ public class AnalyticsSummaryController {
     }
 
     @GetMapping("/user/{userId}/latest")
-    public ResponseEntity<ApiResponse> getLatestAnalytics(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse> getLatestAnalytics(@PathVariable("userId") String userId) {
         try {
             AnalyticsSummaryDto summary = analyticsSummaryService.getLatestSummary(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, summary));
@@ -57,7 +57,7 @@ public class AnalyticsSummaryController {
     }
 
     @GetMapping("/user/{userId}/range")
-    public ResponseEntity<ApiResponse> getAnalyticsByDateRange(@PathVariable String userId, @RequestParam Instant start, @RequestParam Instant end) {
+    public ResponseEntity<ApiResponse> getAnalyticsByDateRange(@PathVariable("userId") String userId, @RequestParam("start") Instant start, @RequestParam("end") Instant end) {
         try {
             List<AnalyticsSummaryDto> summaries = analyticsSummaryService.getSummariesByDateRange(userId, start, end);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, summaries));
@@ -68,7 +68,7 @@ public class AnalyticsSummaryController {
     }
 
     @GetMapping("/user/{userId}/metrics")
-    public ResponseEntity<ApiResponse> getUserMetricsSummary(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse> getUserMetricsSummary(@PathVariable("userId") String userId) {
         try {
             Map<String, Object> metrics = analyticsSummaryService.getUserMetricsSummary(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, metrics));

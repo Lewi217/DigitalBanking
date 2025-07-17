@@ -1,8 +1,10 @@
 package com.mycompany.app.service;
 
+import com.mycompany.app.client.AuthServiceClient;
 import com.mycompany.app.client.NotificationServiceClient;
 import com.mycompany.app.dto.TransactionDto;
 import com.mycompany.app.dto.TransactionRequest;
+import com.mycompany.app.dto.UserDto;
 import com.mycompany.app.events.TransactionCreatedEvent;
 import com.mycompany.app.model.Transaction;
 import com.mycompany.app.repository.TransactionRepository;
@@ -21,6 +23,7 @@ import java.util.List;
 public class TransactionService implements ITransactionService {
 
     private final TransactionRepository repo;
+    private final AuthServiceClient authServiceClient;
     private final NotificationServiceClient notificationClient;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -35,6 +38,13 @@ public class TransactionService implements ITransactionService {
         transaction.setCreatedAt(Instant.now());
         transaction.setScheduledAt(request.scheduleAt);
         transaction = repo.save(transaction);
+
+        try {
+            UserDto user = authServiceClient.getUserById(Long.parseLong(request.fromAccountId));
+            log.info("Transaction created by: {}", user.getName());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user details for ID {}: {}", request.fromAccountId, e.getMessage());
+        }
 
         eventPublisher.publishEvent(new TransactionCreatedEvent(this, transaction));
         // Send notification asynchronously

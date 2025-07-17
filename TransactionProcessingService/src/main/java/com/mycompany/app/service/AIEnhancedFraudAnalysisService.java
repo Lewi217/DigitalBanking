@@ -12,6 +12,7 @@ import com.mycompany.app.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,9 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Profile("openai")
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AIEnhancedFraudAnalysisService {
 
     private final FraudAnalysisRepository fraudAnalysisRepository;
@@ -56,24 +57,24 @@ public class AIEnhancedFraudAnalysisService {
             String transactionContext = buildTransactionContext(transaction);
             String prompt = String.format("""
                 Analyze this banking transaction for fraud patterns:
-                
+
                 Transaction Details:
                 %s
-                
+
                 Rule-based Analysis Results:
                 - Risk Score: %d
                 - Risk Factors: %s
-                
+
                 Additional Context:
                 %s
-                
+
                 Please provide:
                 1. AI Risk Score (0-100)
                 2. Risk Level (LOW/MEDIUM/HIGH/CRITICAL) 
                 3. AI-detected patterns or anomalies
                 4. Confidence level (0-100)
                 5. Specific reasoning
-                
+
                 Respond in JSON format only.
                 """,
                     formatTransactionForAI(transaction),

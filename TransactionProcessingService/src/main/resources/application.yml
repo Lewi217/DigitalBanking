@@ -5,7 +5,7 @@ spring:
   application:
     name: transaction-service
   profiles:
-    active: openai
+    active: dev
   config:
     import: "optional:classpath:keys.properties"
   datasource:
@@ -30,27 +30,18 @@ spring:
     jwt:
       token:
         secret-key: ${secret.key}
-  ai:
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      chat:
-        options:
-          model: gpt-3.5-turbo
-          temperature: 0.2
-
-# Kafka (producer) settings - currently commented out
-# kafka:
-#   bootstrap-servers: localhost:9092
-#   producer:
-#     key-serializer: org.apache.kafka.common.serialization.StringSerializer
-#     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-#   # (if you ever consume, you can uncomment/adjust these)
-#   # consumer:
-#   #   group-id: transaction-service
-#   #   key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#   #   value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-#   #   properties:
-#   #     spring.json.trusted.packages: com.mycompany.app.events
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration
+auth-service:
+  url: http://localhost:8081
+#ai:
+#  openai:
+#    api-key: ${OPENAI_API_KEY}
+#    chat:
+#      options:
+#        model: gpt-3.5-turbo
+#        temperature: 0.2
 
 eureka:
   client:

@@ -3,17 +3,18 @@ package com.mycompany.app.service.analyticsSummary;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycompany.app.client.AccountServiceClient;
+import com.mycompany.app.client.AuthServiceClient;
 import com.mycompany.app.client.TransactionServiceClient;
 import com.mycompany.app.dto.AccountDto;
 import com.mycompany.app.dto.AnalyticsSummaryDto;
 import com.mycompany.app.dto.TransactionDto;
+import com.mycompany.app.dto.UserDto;
 import com.mycompany.app.model.AnalyticsSummary;
 import com.mycompany.app.model.UserBehavior;
 import com.mycompany.app.repository.AnalyticsSummaryRepository;
 import com.mycompany.app.repository.UserBehaviorRepository;
 import com.mycompany.app.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AnalyticsSummaryService implements IAnalyticsSummaryService {
@@ -33,26 +33,65 @@ public class AnalyticsSummaryService implements IAnalyticsSummaryService {
     private final AnalyticsSummaryRepository analyticsSummaryRepository;
     private final UserBehaviorRepository userBehaviorRepository;
     private final AccountServiceClient accountServiceClient;
+    private final AuthServiceClient authServiceClient;
     private final TransactionServiceClient transactionServiceClient;
     private final ObjectMapper objectMapper;
 
     @Transactional
     @Override
     public AnalyticsSummaryDto generateSummary(String userId, String period) {
-        Instant[] periodBounds = calculatePeriodBounds(period);
-        Instant start = periodBounds[0];
-        Instant end = periodBounds[1];
-        List<UserBehavior> behaviors = userBehaviorRepository.findByUserIdAndTimestampBetween(userId, start, end);
-        ApiResponse accountsResponse = accountServiceClient.getUserAccounts(Long.valueOf(userId));
-        List<AccountDto> accountList = objectMapper.convertValue(
-                accountsResponse.getData(),
-                new TypeReference<List<AccountDto>>() {}
-        );
+        try {
+            Long userIdLong;
+            try {
+                userIdLong = Long.valueOf(userId);
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Invalid userId format: " + userId);
+            }
 
-        List<TransactionDto> transactions = fetchUserTransactions(userId, accountList, start, end);
-        AnalyticsSummary summary = calculateSummaryMetrics(userId, period, start, end, behaviors, transactions);
-        AnalyticsSummary savedSummary = analyticsSummaryRepository.save(summary);
-        return convertToDto(savedSummary);
+            UserDto user;
+            try {
+                user = authServiceClient.getUserById(userIdLong);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to get user from auth service: " + e.getMessage(), e);
+            }
+
+            if (user == null) {
+                throw new RuntimeException("Auth service returned null for user ID: " + userId);
+            }
+
+            Instant[] periodBounds = calculatePeriodBounds(period);
+            Instant start = periodBounds[0];
+            Instant end = periodBounds[1];
+
+            List<UserBehavior> behaviors = userBehaviorRepository.findByUserIdAndTimestampBetween(userId, start, end);
+
+            ApiResponse accountsResponse;
+            try {
+                accountsResponse = accountServiceClient.getUserAccounts(userIdLong);
+            } catch (Exception e) {
+                throw new RuntimeException("Account service call failed: " + e.getMessage(), e);
+            }
+
+            List<AccountDto> accountList = objectMapper.convertValue(
+                    accountsResponse.getData(),
+                    new TypeReference<List<AccountDto>>() {}
+            );
+
+            List<TransactionDto> transactions;
+            try {
+                transactions = fetchUserTransactions(userId, accountList, start, end);
+            } catch (Exception e) {
+                transactions = new ArrayList<>();
+            }
+
+            AnalyticsSummary summary = calculateSummaryMetrics(userId, period, start, end, behaviors, transactions);
+            AnalyticsSummary savedSummary = analyticsSummaryRepository.save(summary);
+
+            return convertToDto(savedSummary);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate analytics: " + e.getMessage(), e);
+        }
     }
 
     @Override

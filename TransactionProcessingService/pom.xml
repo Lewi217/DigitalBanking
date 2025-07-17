@@ -82,18 +82,18 @@
         </dependency>
 
         <!-- Spring AI Vector Store (for pattern storage) -->
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-pgvector-store-spring-boot-starter</artifactId>
-            <version>1.0.0-M4</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.ai</groupId>-->
+<!--            <artifactId>spring-ai-pgvector-store-spring-boot-starter</artifactId>-->
+<!--            <version>1.0.0-M4</version>-->
+<!--        </dependency>-->
 
-        <!-- Spring AI Transformers (for local ML models) -->
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-transformers-spring-boot-starter</artifactId>
-            <version>1.0.0-M4</version>
-        </dependency>
+<!--        &lt;!&ndash; Spring AI Transformers (for local ML models) &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.ai</groupId>-->
+<!--            <artifactId>spring-ai-transformers-spring-boot-starter</artifactId>-->
+<!--            <version>1.0.0-M4</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
