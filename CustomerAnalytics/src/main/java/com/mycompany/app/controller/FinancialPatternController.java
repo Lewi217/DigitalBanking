@@ -24,7 +24,7 @@ public class FinancialPatternController {
 
 
     @PostMapping("/analyze")
-    public ResponseEntity<ApiResponse> analyzePatterns(@RequestParam String userId) {
+    public ResponseEntity<ApiResponse> analyzePatterns(@RequestParam("userId") String userId) {
         try {
             List<FinancialPatternDto> patterns = financialPatternService.analyzeUserPatterns(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, patterns));
@@ -35,9 +35,7 @@ public class FinancialPatternController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> getUserPatterns(
-            @PathVariable String userId,
-            @RequestParam(required = false) PatternType patternType) {
+    public ResponseEntity<ApiResponse> getUserPatterns(@PathVariable("userId") String userId, @RequestParam(value = "patternType",required = false) PatternType patternType) {
         try {
             List<FinancialPatternDto> patterns = financialPatternService.getUserPatterns(userId, patternType);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, patterns));
@@ -48,9 +46,7 @@ public class FinancialPatternController {
     }
 
     @GetMapping("/user/{userId}/confidence")
-    public ResponseEntity<ApiResponse> getHighConfidencePatterns(
-            @PathVariable String userId,
-            @RequestParam(required = false) Double minConfidence) {
+    public ResponseEntity<ApiResponse> getHighConfidencePatterns(@PathVariable("userId") String userId, @RequestParam(value = "minConfidence", required = false) Double minConfidence) {
         try {
             List<FinancialPatternDto> patterns = financialPatternService.getHighConfidencePatterns(userId, minConfidence);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, patterns));

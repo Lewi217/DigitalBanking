@@ -30,8 +30,6 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-
-
     @Override
     public User loadUserByUsername(String email) {
         return userRepository.findByEmail(email)
@@ -107,10 +105,26 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto convertUserToDto(User user) {
-        return UserDto.builder()
+        if (user == null) {
+            throw new CustomExceptionResponse("Cannot convert null user to DTO");
+        }
+        String firstName = user.getFirstName() != null ? user.getFirstName() : "";
+        String lastName = user.getLastName() != null ? user.getLastName() : "";
+        String fullName = (firstName + " " + lastName).trim();
+        if (fullName.isEmpty()) {
+            fullName = user.getUsername() != null ? user.getUsername() : user.getEmail();
+        }
+        UserDto userDto = UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .name(user.getFirstName() + " " + user.getLastName())
+                .name(fullName)
                 .build();
+
+        return userDto;
+    }
+
+    public UserDto getUserDtoById(Long userId) {
+        User user = getUserById(userId);
+        return convertUserToDto(user);
     }
 }
