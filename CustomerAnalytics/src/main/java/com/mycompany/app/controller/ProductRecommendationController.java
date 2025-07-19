@@ -22,10 +22,8 @@ public class ProductRecommendationController {
 
     private final ProductRecommendationService productRecommendationService;
 
-
-
     @PostMapping("/generate")
-    public ResponseEntity<ApiResponse> generateRecommendations(@RequestParam String userId) {
+    public ResponseEntity<ApiResponse> generateRecommendations(@RequestParam("userId") String userId) {
         try {
             List<ProductRecommendationDto> recommendations = productRecommendationService.generateAndSaveRecommendations(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, recommendations));
@@ -36,9 +34,7 @@ public class ProductRecommendationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> getUserRecommendations(
-            @PathVariable String userId,
-            @RequestParam(required = false) RecommendationStatus status) {
+    public ResponseEntity<ApiResponse> getUserRecommendations(@PathVariable("userId") String userId, @RequestParam(value = "status" ,required = false) RecommendationStatus status) {
         try {
             List<ProductRecommendationDto> recommendations = productRecommendationService.getUserRecommendations(userId, status);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, recommendations));
@@ -49,7 +45,7 @@ public class ProductRecommendationController {
     }
 
     @GetMapping("/user/{userId}/top")
-    public ResponseEntity<ApiResponse> getTopRecommendations(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse> getTopRecommendations(@PathVariable("userId") String userId) {
         try {
             List<ProductRecommendationDto> topRecs = productRecommendationService.getTopRecommendations(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, topRecs));
@@ -60,7 +56,7 @@ public class ProductRecommendationController {
     }
 
     @GetMapping("/user/{userId}/pending")
-    public ResponseEntity<ApiResponse> getPendingRecommendations(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse> getPendingRecommendations(@PathVariable("userId") String userId) {
         try {
             List<ProductRecommendationDto> pending = productRecommendationService.getPendingRecommendations(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, pending));
@@ -71,7 +67,7 @@ public class ProductRecommendationController {
     }
 
     @GetMapping("/user/{userId}/pending/count")
-    public ResponseEntity<ApiResponse> getPendingCount(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse> getPendingCount(@PathVariable("userId") String userId) {
         try {
             long count = productRecommendationService.getPendingRecommendationsCount(userId);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, count));
@@ -82,9 +78,7 @@ public class ProductRecommendationController {
     }
 
     @PutMapping("/{recommendationId}/status")
-    public ResponseEntity<ApiResponse> updateRecommendationStatus(
-            @PathVariable String recommendationId,
-            @RequestParam RecommendationStatus status) {
+    public ResponseEntity<ApiResponse> updateRecommendationStatus(@PathVariable("recommendationId") String recommendationId, @RequestParam("status") RecommendationStatus status) {
         try {
             productRecommendationService.updateRecommendationStatus(recommendationId, status);
             return ResponseEntity.ok(new ApiResponse(REQUEST_SUCCESS_MESSAGE, "Status updated successfully"));

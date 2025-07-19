@@ -1,5 +1,6 @@
 package com.mycompany.app.service.productRecommendation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycompany.app.client.AccountServiceClient;
 import com.mycompany.app.client.AuthServiceClient;
 import com.mycompany.app.dto.AccountDto;
@@ -21,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,19 +34,17 @@ public class ProductRecommendationService implements IProductRecommendationServi
     private final AccountServiceClient accountServiceClient;
     private final AuthServiceClient authServiceClient;
     private final ModelMapper modelMapper;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     @Override
     public List<ProductRecommendationDto> generateAndSaveRecommendations(String userId) {
         try {
-            UserDto user = authServiceClient.getUserById(Long.valueOf(userId));
-            if (user == null) {
-                return Collections.emptyList();
-            }
             List<FinancialPattern> patterns = financialPatternRepository.findByUserId(userId);
             if (patterns.isEmpty()) {
-                return Collections.emptyList();
+                patterns = generateDefaultPatterns(userId);
             }
+
             List<AccountDto> accounts = getAccountsForUser(userId);
             List<ProductRecommendation> recommendations = generateAllRecommendations(userId, patterns, accounts);
             List<ProductRecommendation> saved = recommendationRepository.saveAll(recommendations);
@@ -61,6 +57,46 @@ public class ProductRecommendationService implements IProductRecommendationServi
         }
     }
 
+    private List<FinancialPattern> generateDefaultPatterns(String userId) {
+        List<FinancialPattern> defaultPatterns = new ArrayList<>();
+        Instant now = Instant.now();
+        Instant start = now.minus(90, ChronoUnit.DAYS);
+
+        // Create default spending pattern
+        FinancialPattern spendingPattern = FinancialPattern.builder()
+                .userId(userId)
+                .accountId("default_account")
+                .patternType(PatternType.SPENDING_HABIT)
+                .averageAmount(BigDecimal.valueOf(1200.00))
+                .totalAmount(BigDecimal.valueOf(3600.00))
+                .frequency(3)
+                .description("Estimated spending pattern - No transaction history available")
+                .analyzedAt(now)
+                .periodStart(start)
+                .periodEnd(now)
+                .confidence(0.75)
+                .build();
+
+        // Create default income pattern
+        FinancialPattern incomePattern = FinancialPattern.builder()
+                .userId(userId)
+                .accountId("default_account")
+                .patternType(PatternType.INCOME_PATTERN)
+                .averageAmount(BigDecimal.valueOf(2500.00))
+                .totalAmount(BigDecimal.valueOf(5000.00))
+                .frequency(2)
+                .description("Estimated income pattern - No transaction history available")
+                .analyzedAt(now)
+                .periodStart(start)
+                .periodEnd(now)
+                .confidence(0.80)
+                .build();
+
+        defaultPatterns.add(spendingPattern);
+        defaultPatterns.add(incomePattern);
+
+        return financialPatternRepository.saveAll(defaultPatterns);
+    }
 
     @Override
     public List<ProductRecommendation> generateAllRecommendations(String userId,
@@ -259,12 +295,43 @@ public class ProductRecommendationService implements IProductRecommendationServi
     public List<AccountDto> getAccountsForUser(String userId) {
         try {
             ApiResponse response = accountServiceClient.getUserAccounts(Long.valueOf(userId));
-            @SuppressWarnings("unchecked")
-            List<AccountDto> accounts = response != null ? (List<AccountDto>) response.getData() : Collections.emptyList();
+            List<AccountDto> accounts = convertToAccountDtoList(response != null ? response.getData() : null);
             return accounts;
+        } catch (Exception e) {
+            // Return empty list and let the service continue with default patterns
+            return Collections.emptyList();
+        }
+    }
+
+    private List<AccountDto> convertToAccountDtoList(Object data) {
+        if (data == null) {
+            return Collections.emptyList();
+        }
+        try {
+            if (data instanceof List) {
+                List<?> rawList = (List<?>) data;
+                return rawList.stream()
+                        .map(this::convertToAccountDto)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+            }
         } catch (Exception e) {
             return Collections.emptyList();
         }
+        return Collections.emptyList();
+    }
+
+    private AccountDto convertToAccountDto(Object obj) {
+        try {
+            if (obj instanceof LinkedHashMap) {
+                return objectMapper.convertValue(obj, AccountDto.class);
+            } else if (obj instanceof AccountDto) {
+                return (AccountDto) obj;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 
     @Scheduled(cron = "0 0 1 * * ?")
